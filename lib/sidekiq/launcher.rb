@@ -88,7 +88,6 @@ module Sidekiq
             Processor::WORKER_STATE.each_pair do |tid, hash|
               conn.hset(workers_key, tid, Sidekiq.dump_json(hash))
             end
-            conn.expire(workers_key, 60)
           end
         end
         fails = procd = 0
@@ -98,7 +97,6 @@ module Sidekiq
             conn.sadd('processes', key)
             conn.exists(key)
             conn.hmset(key, 'info', to_json, 'busy', Processor::WORKER_STATE.size, 'beat', Time.now.to_f, 'quiet', @done)
-            conn.expire(key, 60)
             conn.rpop("#{key}-signals")
           end
         end
